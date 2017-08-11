@@ -14,6 +14,8 @@ class UserSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     author = UserSerializer(required=False)
     images = serializers.HyperlinkedIdentityField(view_name='postimage-list')
+    author_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), source='author', write_only=True)
 
     class Meta:
         model = Post
@@ -22,7 +24,8 @@ class PostSerializer(serializers.ModelSerializer):
 
 class ImageSerializer(serializers.ModelSerializer):
     image = serializers.ReadOnlyField(source='image.url')
+    # image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Image
-        fields = ('id', 'image')
+        fields = '__all__'

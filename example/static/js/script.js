@@ -21,10 +21,28 @@
   app = angular.module('example.app.editor', ['example.api', 'example.app.photos']);
 
   app.controller('EditController', [
-    '$scope', 'Post', function($scope, Post) {
-      console.log(Post)
+    '$scope', 'Post', 'User2', function($scope, Post, User2) {
+      console.log(Post);
       $scope.newPost = new Post();
+      $scope.users = []
+      $scope.loadUsers = function() {
+        return User2.query().$promise.then(function(results) {
+          angular.forEach(results, function(result) {
+            $scope.users.push(result)
+          })
+        });
+      };
+      // asssets
+      $scope.loadUsers();
+      console.log($scope.users)
+      $scope.splitImageSource = function(string, nb) {
+        var array = string.split('example/');
+        return array[nb];
+      }
+      console.log($scope.posts)
       return $scope.save = function() {
+        $scope.newPost.author_id = $scope.newPost.author.id
+        console.log($scope.newPost)
         return $scope.newPost.$save().then(function(result) {
           return $scope.posts.push(result);
         }).then(function() {
@@ -194,6 +212,14 @@
     '$resource', function($resource) {
       return $resource('/api/users/:username', {
         username: '@username'
+      });
+    }
+  ]);
+
+  app.factory('User2', [
+    '$resource', function($resource) {
+      return $resource('/api/users/:id', {
+        username: '@id'
       });
     }
   ]);

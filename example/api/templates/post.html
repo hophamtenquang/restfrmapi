@@ -1,0 +1,64 @@
+{% load staticfiles %}
+
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="{% static "bootstrap/dist/css/bootstrap.css" %}">
+<style>
+    .photo img {
+        max-width: 150px;
+        vertical-align: top;
+    }
+    .close {
+        padding: 0 10px;
+    }
+    .btn-file {
+      position: relative;
+      overflow: hidden;
+  }
+  .btn-file inputt[type=file] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      min-width: 100%;
+      min-height: 100%;
+      font-size: 100px;
+      text-align: right;
+      filter: alpha(opacity=0);
+      opacity: 0;
+      outline: none;
+      background: white;
+      cursor: inherit;
+      display: block;
+  }
+</style>
+</head>
+<body ng-app="{% block ng_app %}example.app.post{% endblock %}">
+<div class="content ng-cloak" ng-controller="{% block ng_controller %}PostController{% endblock %}">
+  <div class="panel" ng-repeat="post in posts">
+    <div class="row well well-sm">
+      <div class="panel-heading clearfix">{% block post_header %}
+        {% verbatim %}
+        <h3 class="panel-title">{{ post.title }}</h3><br>
+        <p><small>author: {{ post.author.username }}</small></p>
+        {% endverbatim %}
+    {% endblock %}</div>
+    {% verbatim %}
+      <p class="well well-sm">{{ post.body }}</p>
+      <span class="photo" ng-repeat="photo in photos[post.id]">
+          <img class="col-xs-4" style="height: 80px; object-fit: cover" ng-src="{{ 'media/' + photo.image }}">
+      </span>
+    </div>
+    {% endverbatim %}
+  </div>
+</div>
+
+{% block js %}
+<script src="{% static "underscore/underscore.js" %}"></script>
+<script src="{% static "angular/angular.js" %}"></script>
+<script src="{% static "angular-resource/angular-resource.js" %}"></script>
+<script src="{% static "js/dist/angular-file-upload.min.js" %}"></script>
+<script src="{% static "js/script.js" %}"></script>
+
+{% endblock %}
+</body>
+</html>

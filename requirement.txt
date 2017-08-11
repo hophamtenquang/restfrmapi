@@ -1,0 +1,6 @@
+Django==1.9
+djangorestframework==3.6.3
+olefile==0.44
+Pillow==4.2.1
+django-debug-toolbar==1.4
+ipdb==0.9.3

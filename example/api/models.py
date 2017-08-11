@@ -10,10 +10,10 @@ class User(models.Model):
 
 class Post(models.Model):
     author = models.ForeignKey(User, related_name='posts')
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, null=False)
     body = models.TextField()
 
 
 class Image(models.Model):
     post = models.ForeignKey(Post, related_name='images')
-    image = models.ImageField(upload_to='%Y/%m/%d')
+    image = models.ImageField(upload_to='images')

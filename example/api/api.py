@@ -1,10 +1,9 @@
-from rest_framework import generics
+from rest_framework import generics, status, views
 
 
 from .serializers import UserSerializer, PostSerializer, ImageSerializer
 from .models import User, Post, Image
-
-import random
+from rest_framework.response import Response
 
 
 class UserMixin(object):
@@ -26,18 +25,19 @@ class PostMixin(object):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
-    def perform_create(self, serializer):
-        """Force author to the current user on save"""
-        authors = User.objects.all()
-        index = random.randint(0, len(authors))
-        auth = authors[index]
-
-        auth = User.objects.get(username='admin')
-        serializer.save(author=auth)
-
 
 class PostList(PostMixin, generics.ListCreateAPIView):
-    pass
+    def post(self, request, format=None):
+        serializer = PostSerializer(
+            data=request.data,
+            context={'request': request}
+        )
+        # import pdb
+        # pdb.set_trace()
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PostDetail(PostMixin, generics.RetrieveUpdateDestroyAPIView):
@@ -76,3 +76,18 @@ class PostImageList(generics.ListAPIView):
     def get_queryset(self):
         queryset = super(PostImageList, self).get_queryset()
         return queryset.filter(post__pk=self.kwargs.get('pk'))
+
+
+class ImageAPIView(views.APIView):
+    def get(self, request):
+        return Response(status=status.HTTP_200_OK)
+
+    def post(self, format, request=None):
+        post_id = self.request.data['post_id']
+        create_post = Post.objects.all().filter(id=post_id).get()
+        image = self.request.FILES.get('file')
+        obj = Image.objects.create(post=create_post)
+        obj.image = image
+        obj.save()
+        # import pdb; pdb.set_trace()
+        return Response(status=status.HTTP_202_ACCEPTED)
