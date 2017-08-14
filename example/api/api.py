@@ -25,6 +25,10 @@ class PostMixin(object):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
+    def perform_create(self, serializer):
+        """Force author to the current user on save"""
+        serializer.save(author=self.request.user)
+
 
 class PostList(PostMixin, generics.ListCreateAPIView):
     def post(self, request, format=None):
@@ -32,8 +36,6 @@ class PostList(PostMixin, generics.ListCreateAPIView):
             data=request.data,
             context={'request': request}
         )
-        # import pdb
-        # pdb.set_trace()
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -41,7 +43,14 @@ class PostList(PostMixin, generics.ListCreateAPIView):
 
 
 class PostDetail(PostMixin, generics.RetrieveUpdateDestroyAPIView):
-    pass
+    def put(self, request, pk, format=None):
+        instance = self.get_object()
+        serializer = PostSerializer(instance, data=self.request.data, context={'request': self.request})
+        import pdb; pdb.set_trace()
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserPostList(generics.ListAPIView):
